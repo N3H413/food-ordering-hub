@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import MenuGrid from './components/MenuGrid';
+import CartSidebar from './components/CartSidebar';
 
 const FOOD_MENU = [
   { id: 1, name: 'Pepperoni Pizza', price: 12.99, image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500&q=80' },
@@ -51,7 +52,7 @@ export default function App() {
           <MenuGrid menuItems={FOOD_MENU} onAddToCart={handleAddToCart} />
         </main>
 
-        <aside className="w-full lg:w-80 bg-white border border-neutral-200 shadow-sm rounded-2xl p-6 h-fit lg:sticky lg:top-24">
+        {/* <aside className="w-full lg:w-80 bg-white border border-neutral-200 shadow-sm rounded-2xl p-6 h-fit lg:sticky lg:top-24">
           <h2 className="text-lg font-bold text-neutral-800 border-b border-neutral-100 pb-3 mb-4">
             Shopping Cart
           </h2>
@@ -62,6 +63,9 @@ export default function App() {
               (Component 4 will hook into this space next!)
             </p>
           </div>
+        </aside> */}
+        <aside className="w-full lg:w-80 bg-white border border-neutral-200 shadow-sm rounded-2xl p-6 h-fit lg:sticky lg:top-24">
+          <CartSidebar cart={cart} totalPrice={totalOrderPrice} />
         </aside>
 
       </div>
