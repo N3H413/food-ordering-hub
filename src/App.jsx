@@ -4,10 +4,13 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 
+import FoodCard from './components/FoodCard'
+
 function App() {
   const [count, setCount] = useState(0)
 
   return (
+    
     <>
       <section id="center">
         <div className="hero">
@@ -115,6 +118,8 @@ function App() {
 
       <div className="ticks"></div>
       <section id="spacer"></section>
+
+      <FoodCard item={{ name: "Test Burger", price: 5.99, image: "https://placehold.co/300" }} />
     </>
   )
 }
