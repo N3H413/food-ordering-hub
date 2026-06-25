@@ -1,13 +1,24 @@
-export default function CartSidebar({ cart, totalPrice }) {
+export default function CartSidebar({ cart, totalPrice, onRemoveFromCart, onIncrementFromCart, onClearCart }) {
   return (
     <div className="flex flex-col h-full">
       <div className="border-b border-neutral-100 pb-4 mb-4 flex items-center justify-between">
         <h2 className="text-lg font-bold text-neutral-900 tracking-tight">
           Your Order Summary
         </h2>
+          <div className="flex items-center gap-2">
+          {/* 2. Short-circuit conditional evaluation engine to inject the Clear All button */}
+          {cart.length > 0 && (
+            <button
+              onClick={onClearCart}
+              className="text-[10px] font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-100 px-2 py-1 rounded-md uppercase tracking-wider transition-colors cursor-pointer"
+            >
+              Clear All
+            </button>
+          )}
         <span className="text-xs font-semibold text-neutral-400 bg-neutral-50 border border-neutral-100 px-2 py-0.5 rounded-md uppercase tracking-wider">
           Live Sync
         </span>
+        </div>
       </div>
 
       {cart.length === 0 ? (
@@ -23,16 +34,37 @@ export default function CartSidebar({ cart, totalPrice }) {
             {cart.map((cartItem) => (
               <li key={cartItem.id} className="py-3 flex justify-between items-center text-sm group">
                 <div className="flex flex-col pr-2">
-                  <span className="font-bold text-neutral-800 group-hover:text-orange-600 transition-colors">
+                  <span className="font-bold text-neutral-800">
                     {cartItem.name}
                   </span>
                   <span className="text-xs text-neutral-400 mt-0.5">
                     Quantity: <strong className="text-neutral-600 font-bold">x{cartItem.quantity}</strong>
                   </span>
                 </div>
-                <span className="font-mono font-bold text-neutral-900 bg-neutral-50 px-2 py-1 rounded-md border border-neutral-100 text-xs shrink-0">
-                  ${(cartItem.price * cartItem.quantity).toFixed(2)}
-                </span>
+                
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="font-mono font-bold text-neutral-900 text-xs mr-1">
+                    ${(cartItem.price * cartItem.quantity).toFixed(2)}
+                  </span>
+                  
+                  {/* Symmetrical Controls: Minus and Plus Button Row */}
+                  <div className="flex items-center border border-neutral-200 rounded-lg overflow-hidden bg-neutral-50 shadow-sm">
+                    <button 
+                      onClick={() => onRemoveFromCart(cartItem.id)}
+                      className="bg-white hover:bg-red-50 text-neutral-500 hover:text-red-600 h-6 w-6 flex items-center justify-center font-bold text-xs transition-colors cursor-pointer border-r border-neutral-200"
+                      title="Reduce Quantity"
+                    >
+                      —
+                    </button>
+                    <button 
+                      onClick={() => onIncrementFromCart(cartItem)}
+                      className="bg-white hover:bg-green-50 text-neutral-500 hover:text-green-600 h-6 w-6 flex items-center justify-center font-bold text-xs transition-colors cursor-pointer"
+                      title="Increase Quantity"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
               </li>
             ))}
           </ul>
@@ -46,8 +78,8 @@ export default function CartSidebar({ cart, totalPrice }) {
             </div>
             
             <button 
-              onClick={() => alert(`Order Placed Mockup State!\nTotal Amount: $${totalPrice.toFixed(2)}\nThank you for checking out our app demo!`)}
-              className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold text-sm py-3 px-4 rounded-xl shadow-md shadow-orange-500/10 transition-all transform active:scale-[0.98]"
+              onClick={() => alert(`Order Placed Mockup State!\nTotal Amount: $${totalPrice.toFixed(2)}`)}
+              className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold text-sm py-3 px-4 rounded-xl shadow-md transition-all transform active:scale-[0.98]"
             >
               Proceed to Checkout
             </button>
