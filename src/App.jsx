@@ -4,22 +4,22 @@ import CartSidebar from './components/CartSidebar';
 
 const FOOD_MENU = [
   // Pizzas
-  { id: 1, name: 'Pepperoni Pizza', price: 12.99, category: 'Pizzas', isVeg: false, image: '/images/pepperoni-pizza.jpg' },
-  { id: 2, name: 'Margherita Pizza', price: 10.49, category: 'Pizzas', isVeg: true, image: '/images/margherita-pizza.jpg' },
-  { id: 3, name: 'Spicy BBQ Chicken Pizza', price: 13.99, category: 'Pizzas', isVeg: false, image: '/images/chicken-pizza.jpg' },
+  { id: 1, name: 'Pepperoni Pizza', price: 12.99, category: 'Pizzas', isVeg: false, image: '/images/pepperoni-pizza.jpg', description: 'Freshly baked crust layered with signature herb tomato sauce, premium mozzarella, and savory crispy-edged pepperoni slices.' },
+  { id: 2, name: 'Margherita Pizza', price: 10.49, category: 'Pizzas', isVeg: true, image: '/images/margherita-pizza.jpg', description: 'A timeless Italian classic featuring house-made tomato sauce, fresh creamy mozzarella rounds, a drizzle of extra virgin olive oil, and aromatic garden basil.' },
+  { id: 3, name: 'Spicy BBQ Chicken Pizza', price: 13.99, category: 'Pizzas', isVeg: false, image: '/images/chicken-pizza.jpg', description: 'Tender grilled chicken strips tossed in smoky honey BBQ sauce, paired with red onions, fresh cilantro, and a blend of smoked provolone and mozzarella.' },
   
   // Burgers
-  { id: 4, name: 'Classic Cheeseburger', price: 8.49, category: 'Burgers', isVeg: false, image: '/images/cheeseburger.jpg' },
-  { id: 5, name: 'Crispy Chicken Burger', price: 9.29, category: 'Burgers', isVeg: false, image: '/images/chicken-burger.jpg' },
-  { id: 6, name: 'Spicy Black Bean Burger', price: 7.99, category: 'Burgers', isVeg: true, image: '/images/bean-burger.jpg' },
+  { id: 4, name: 'Classic Cheeseburger', price: 8.49, category: 'Burgers', isVeg: false, image: '/images/cheeseburger.jpg', description: 'Flame-broiled smash beef patty topped with melted cheddar cheese, crisp butter lettuce, ripe tomato slices, pickles, and our signature secret house sauce on a toasted brioche bun.' },
+  { id: 5, name: 'Crispy Chicken Burger', price: 9.29, category: 'Burgers', isVeg: false, image: '/images/chicken-burger.jpg', description: 'Golden-fried buttermilk chicken breast with a fiery spice rub, accompanied by creamy garlic slaw and sweet pickle chips on a soft potato bun.' },
+  { id: 6, name: 'Spicy Black Bean Burger', price: 7.99, category: 'Burgers', isVeg: true, image: '/images/bean-burger.jpg', description: 'A protein-packed artisan black bean, corn, and brown rice patty spiced with chipotle, topped with avocado mash and crisp sprouts.' },
   
   // Sides & Salads
-  { id: 7, name: 'Crispy French Fries', price: 3.99, category: 'Sides', isVeg: true, image: '/images/french-fries.jpg' },
-  { id: 8, name: 'Veggie Caesar Salad', price: 7.99, category: 'Sides', isVeg: true, image: '/images/caesar-salad.jpg' },
+  { id: 7, name: 'Crispy French Fries', price: 3.99, category: 'Sides', isVeg: true, image: '/images/french-fries.jpg', description: 'Thick-cut skin-on potatoes fried to golden perfection, tossed lightly in sea salt and a touch of cracked black pepper. Served with garlic aioli.' },
+  { id: 8, name: 'Veggie Caesar Salad', price: 7.99, category: 'Sides', isVeg: true, image: '/images/caesar-salad.jpg', description: 'Crisp hearts of romaine lettuce tossed in a creamy eggless Caesar dressing, loaded with house-baked garlic croutons and shaved vegetarian parmesan cheese.' },
   
   // Drinks
-  { id: 9, name: 'Chocolate Milkshake', price: 4.49, category: 'Drinks', isVeg: true, image: '/images/milkshake.jpg' },
-  { id: 10, name: 'Iced Lemon Tea', price: 2.99, category: 'Drinks', isVeg: true, image: '/images/iced-tea.jpg' }
+  { id: 9, name: 'Chocolate Milkshake', price: 4.49, category: 'Drinks', isVeg: true, image: '/images/milkshake.jpg', description: 'Rich, velvet-smooth premium dark chocolate ice cream blended with whole milk, topped with fresh whipped cream and chocolate shavings.' },
+  { id: 10, name: 'Iced Lemon Tea', price: 2.99, category: 'Drinks', isVeg: true, image: '/images/iced-tea.jpg', description: 'Freshly brewed black tea leaves chilled and infused with real squeezed lemon juice and a touch of organic pure cane sugar.' }
 ];
 
 export default function App() {
@@ -48,20 +48,20 @@ export default function App() {
     });
   };
 
-  const handleRemoveFromCart = (itemId) => {
-    setCart((currentCart) => {
-      const existingItem = currentCart.find((cartItem)=> cartItem.id === itemId);
-      if(!existingItem) return currentCart;
-      if(existingItem.quantity > 1) {
-        return currentCart.map((cartItem) => cartItem.id === itemId 
-        ? { ...cartItem, quantity: cartItem.quantity -1} 
-        : cartItem
-        );
-      }
-      return currentCart.filter((cartItem) => cartItem.id !== itemId);
-    });
-  };
+  const handleRemoveFromCart = (itemOrId) => {
+    // Extract the numeric ID safely regardless of whether an object or primitive ID is provided
+    const targetId = typeof itemOrId === 'object' && itemOrId !== null ? itemOrId.id : itemOrId;
 
+    setCart((prevCart) =>
+      prevCart
+        .map((cartItem) =>
+          cartItem.id === targetId
+            ? { ...cartItem, quantity: cartItem.quantity - 1 }
+            : cartItem
+        )
+        .filter((cartItem) => cartItem.quantity > 0) // Automatically drop items hitting 0
+    );
+  };
   const totalItemsCount = cart.reduce((total, cartItem) => total + cartItem.quantity, 0);
   const totalOrderPrice = cart.reduce((total, cartItem) => total + (cartItem.price * cartItem.quantity), 0);
 
@@ -89,7 +89,12 @@ export default function App() {
       <div className="max-w-7xl mx-auto p-6 flex flex-col lg:flex-row gap-8">
         
         <main className="flex-1">
-          <MenuGrid menuItems={FOOD_MENU} onAddToCart={handleAddToCart} />
+          <MenuGrid 
+            menuItems={FOOD_MENU} 
+            onAddToCart={handleAddToCart} 
+            cart={cart}
+            onRemoveFromCart={handleRemoveFromCart}
+            />
         </main>
         <aside className="w-full lg:w-80 bg-white border border-neutral-200 shadow-sm rounded-2xl p-6 h-fit lg:sticky lg:top-24">
           <CartSidebar 

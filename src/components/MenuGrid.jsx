@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import FoodCard from './FoodCard';
 
-export default function MenuGrid({ menuItems, onAddToCart }) {
+export default function MenuGrid({ menuItems, onAddToCart, cart, onRemoveFromCart }) {
   const [activeTab, setActiveTab] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  
+  const [selectedItem, setSelectedItem] = useState(null);
+
   const categories = ['All', 'Pizzas', 'Burgers', 'Veg Only', 'Sides', 'Drinks'];
 
   const filteredItems = menuItems.filter((item) => {
@@ -17,8 +18,13 @@ export default function MenuGrid({ menuItems, onAddToCart }) {
     return matchesCategory && matchesSearch;
   });
 
+  // NEW: Calculate the current cart volume specifically for the open detail modal window
+  const modalCartItem = selectedItem ? cart.find((c) => c.id === selectedItem.id) : null;
+  const modalQuantity = modalCartItem ? modalCartItem.quantity : 0;
+
   return (
     <section aria-labelledby="menu-heading">
+      {/* Header Search Group */}
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h2 id="menu-heading" className="text-2xl font-bold tracking-tight text-neutral-900">
@@ -48,6 +54,7 @@ export default function MenuGrid({ menuItems, onAddToCart }) {
         </div>
       </div>
 
+      {/* Category Navigation Bar */}
       <div className="flex flex-wrap gap-2 mb-8 pb-2 border-b border-neutral-100">
         {categories.map((categoryName) => {
           const isSelected = activeTab === categoryName;
@@ -67,19 +74,102 @@ export default function MenuGrid({ menuItems, onAddToCart }) {
         })}
       </div>
 
+      {/* Primary Food Grid Array */}
       {filteredItems.length === 0 ? (
         <div className="text-center py-12 text-neutral-400 text-sm bg-white border border-neutral-100 rounded-2xl shadow-sm">
           No items found matching this category filter configuration.
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredItems.map((singleFoodItem) => (
-            <FoodCard 
-              key={singleFoodItem.id} 
-              item={singleFoodItem} 
-              onAddToCart={onAddToCart} 
-            />
-          ))}
+          {filteredItems.map((singleFoodItem) => {
+            const exactCartItem = cart.find((c) => c.id === singleFoodItem.id);
+            const absoluteQuantity = exactCartItem ? exactCartItem.quantity : 0;
+
+            return (
+              <FoodCard 
+                key={singleFoodItem.id} 
+                item={singleFoodItem} 
+                quantity={absoluteQuantity} 
+                onAddToCart={onAddToCart} 
+                onRemoveFromCart={onRemoveFromCart} 
+                onViewDetails={(item) => setSelectedItem(item)}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {/* DETAIL MODAL OVERLAY WITH LIVE SYNCED QUANTITY CONTROLS */}
+      {selectedItem && (
+        <div 
+          onClick={() => setSelectedItem(null)}
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4 transition-all"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-neutral-100 flex flex-col"
+          >
+            {/* Header Image Cover */}
+            <div className="relative h-56 bg-neutral-100">
+              <img src={selectedItem.image} alt={selectedItem.name} className="w-full h-full object-cover" />
+              <button 
+                onClick={() => setSelectedItem(null)}
+                className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm hover:bg-white text-neutral-700 h-8 w-8 rounded-full flex items-center justify-center font-bold shadow-sm cursor-pointer"
+              >
+                ✕
+              </button>
+              <div className="absolute top-4 left-4 flex items-center gap-1.5 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm border border-neutral-100 text-[10px] font-bold tracking-wide uppercase">
+                <span className={`h-2 w-2 rounded-full ${selectedItem.isVeg ? 'bg-green-500' : 'bg-red-500'}`} />
+                <span className={selectedItem.isVeg ? 'text-green-700' : 'text-red-700'}>
+                  {selectedItem.isVeg ? 'Veg' : 'Non-Veg'}
+                </span>
+              </div>
+            </div>
+
+            {/* Typography Content and Live Buttons */}
+            <div className="p-6">
+              <div className="flex justify-between items-start gap-4 mb-3">
+                <h3 className="text-xl font-bold text-neutral-900">{selectedItem.name}</h3>
+                <span className="font-mono font-extrabold text-lg text-neutral-900 bg-neutral-50 border border-neutral-100 px-2.5 py-0.5 rounded-xl">
+                  ${selectedItem.price.toFixed(2)}
+                </span>
+              </div>
+              
+              <p className="text-neutral-500 text-sm leading-relaxed mb-6">
+                {selectedItem.description}
+              </p>
+
+              {/* UPGRADED: Conditional Control Switcher inside description layout view */}
+              {modalQuantity > 0 ? (
+                <div className="flex items-center justify-between border border-neutral-200 rounded-xl overflow-hidden bg-neutral-50 shadow-sm h-12 w-full">
+                  <button 
+                    onClick={() => onRemoveFromCart(selectedItem.id)}
+                    className="bg-white hover:bg-red-50 text-neutral-600 hover:text-red-600 h-full w-14 flex items-center justify-center font-bold text-lg transition-colors cursor-pointer"
+                    title="Decrease Volume"
+                  >
+                    —
+                  </button>
+                  <span className="font-bold text-neutral-800 text-sm">
+                    {modalQuantity} added to cart
+                  </span>
+                  <button 
+                    onClick={() => onAddToCart(selectedItem)}
+                    className="bg-white hover:bg-green-50 text-neutral-600 hover:text-green-600 h-full w-14 flex items-center justify-center font-bold text-lg transition-colors cursor-pointer"
+                    title="Increase Volume"
+                  >
+                    +
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => onAddToCart(selectedItem)}
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl shadow-md transition-all active:scale-[0.98] cursor-pointer"
+                >
+                  Add to Cart
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </section>
