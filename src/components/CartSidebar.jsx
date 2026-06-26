@@ -6,7 +6,6 @@ export default function CartSidebar({ cart, totalPrice, onRemoveFromCart, onIncr
           Your Order Summary
         </h2>
           <div className="flex items-center gap-2">
-          {/* 2. Short-circuit conditional evaluation engine to inject the Clear All button */}
           {cart.length > 0 && (
             <button
               onClick={onClearCart}
