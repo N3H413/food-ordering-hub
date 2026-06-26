@@ -18,7 +18,6 @@ export default function MenuGrid({ menuItems, onAddToCart, cart, onRemoveFromCar
     return matchesCategory && matchesSearch;
   });
 
-  // NEW: Calculate the current cart volume specifically for the open detail modal window
   const modalCartItem = selectedItem ? cart.find((c) => c.id === selectedItem.id) : null;
   const modalQuantity = modalCartItem ? modalCartItem.quantity : 0;
 
@@ -99,7 +98,6 @@ export default function MenuGrid({ menuItems, onAddToCart, cart, onRemoveFromCar
         </div>
       )}
 
-      {/* DETAIL MODAL OVERLAY WITH LIVE SYNCED QUANTITY CONTROLS */}
       {selectedItem && (
         <div 
           onClick={() => setSelectedItem(null)}
@@ -126,7 +124,6 @@ export default function MenuGrid({ menuItems, onAddToCart, cart, onRemoveFromCar
               </div>
             </div>
 
-            {/* Typography Content and Live Buttons */}
             <div className="p-6">
               <div className="flex justify-between items-start gap-4 mb-3">
                 <h3 className="text-xl font-bold text-neutral-900">{selectedItem.name}</h3>
@@ -139,7 +136,6 @@ export default function MenuGrid({ menuItems, onAddToCart, cart, onRemoveFromCar
                 {selectedItem.description}
               </p>
 
-              {/* UPGRADED: Conditional Control Switcher inside description layout view */}
               {modalQuantity > 0 ? (
                 <div className="flex items-center justify-between border border-neutral-200 rounded-xl overflow-hidden bg-neutral-50 shadow-sm h-12 w-full">
                   <button 
